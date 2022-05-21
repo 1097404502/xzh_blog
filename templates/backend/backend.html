@@ -1,0 +1,518 @@
+{% load my_tag my_filter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>后台界面</title>
+    <link rel="stylesheet" href="/static/my/css/reset.css">
+	<link rel="stylesheet" href="/static/my/css/backend/backend_base.css">
+    <link rel="stylesheet" href="/static/elementui/theme-chalk/index.css">
+    {% block css %}
+    
+    {% endblock %}
+</head>
+<body>
+<div id="app">
+    <aside>
+    <div class="slogan">
+        <img src="/static/my/img/backend/slogan.png" alt="">
+    </div>
+    <div id="dynamic_menu">
+        <a href="/">首页</a>
+        <a href="/backend/">个人中心</a>
+        <a href="/backend/change_avatar/">修改头像</a>
+        {% if request.user.is_superuser %}
+            <a href="/backend/add_article/">添加文章</a>
+            <a href="/backend/avatar_list/">头像列表</a>
+            <a href="/backend/cover_list/">文章封面</a>
+            <a href="/admin/">后台系统</a></li>
+        {% endif %}
+        <a href="/logout/">注销退出</a>
+    </div>
+</aside>
+<main>
+    {% csrf_token %}
+    {% block main %}
+        <div class="user_info">
+        <div class="left">
+            <img src="{{ request.user.avatar.url.url }}" alt="">
+        </div>
+        <div class="right">
+            <div class="item">
+                <span><b>用户名：</b>{{ request.user.username }}</span>
+            </div>
+            <div class="item">
+                <span><b>注册时间：</b>{{ request.user.date_joined|date:'Y-m-d H:i:s' }}</span>
+            </div>
+            <div class="item">
+                <span><b>上次登录时间：</b>{{ request.user.last_login|date:'Y-m-d H:i:s' }}</span>
+            </div>
+            <div class="item">
+                <span><b>来源渠道：</b>{{ request.user.sign_status }}</span>
+            </div>
+            <div class="item">
+                <span><b>账号状态：</b>1</span>
+            </div>
+            <div class="item">
+                <span><b>邮箱：</b>
+                    {% if request.user.email %}
+                        {{ request.user.email }}
+                     {% else %}
+                        <a href="javascript:void(0);">绑定邮箱</a>
+                    {% endif %} 
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+        <div class="actions">
+        <div class="item">
+            <el-button type="info" @click="perfect_information_dialogVisible=true">完善信息</el-button>
+        </div>
+         <el-dialog
+					title="完善信息"
+					:visible.sync="perfect_information_dialogVisible"
+					width="30%">
+					<div class="edit_info">
+						<div>
+							<label for="" id="edit_password_oldpwd">邮箱</label>
+							<el-input v-model="perfect_information.email" placeholder="请输入邮箱"></el-input>
+						</div>
+						<div>
+							<label for="" id="">验证码</label>
+							<div class="flex send_email">
+								<el-input v-model="perfect_information.code" placeholder="请输入验证码"></el-input>
+								<el-button @click="send_email" :disabled="perfect_information_email_disabled">发送邮箱验证码
+								</el-button>
+							</div>
+						</div>
+						<div>
+							<label for="" id="">请输入密码</label>
+							<el-input v-model="perfect_information.pwd" placeholder="请输入密码"></el-input>
+						</div>
+						<p>
+							绑定邮箱之后可使用邮箱+密码登录
+						</p>
+					</div>
+					<span slot="footer" class="dialog-footer">
+                        <el-button @click="perfect_information_dialogVisible = false">取 消</el-button>
+					    <el-button :disabled="perfect_information_method_disabled" type="primary"
+					               @click="perfect_information_method">确 定</el-button>
+					</span>
+				</el-dialog>
+        <div class="item">
+            <el-button type="success"><a href="/backend/change_avatar/" style="color:white;">修改头像</a></el-button>
+        </div>
+        <el-dialog
+                title="修改密码"
+                :visible.sync="edit_password_dialogVisible"
+                width="30%">
+                <div class="edit_info">
+                    <div>
+                        <label for="" id="edit_password_oldpwd">旧密码</label>
+                        <el-input v-model="edit_password.oldpwd" type="password" placeholder="请输入之前的密码"></el-input>
+                    </div>
+                    <div>
+                        <label for="" id="edit_password_newpwd">新密码</label>
+                        <el-input v-model="edit_password.newpwd" type="password" placeholder="请输入新密码"></el-input>
+                    </div>
+                    <div>
+                        <label for="" id="edit_password_oldpwd">再次输入新密码</label>
+                        <el-input v-model="edit_password.repwd" type="password" placeholder="再次输入新的密码"></el-input>
+                    </div>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="edit_password_dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="edit_password_method">确 定</el-button>
+                </span>
+            </el-dialog>
+        <div class="item">
+            <el-button @click="edit_password_dialogVisible=true" type="warning">修改密码</el-button>
+        </div>
+        <div class="item">
+            <el-button type="danger">注销退出</el-button>
+        </div>
+    </div>
+
+        {% block content %}
+        {% if collect_query.count %}
+             <form method="post" action="/api/cancelCollection/" class="collect_article_all">
+                {% csrf_token %}
+                <p>共收藏文章{{ collect_query.count }}篇，选择[[ select_list.length ]]篇</p>
+                <span></span>
+                <table class="collection_table">
+                    <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" date="{{ collect_query|get_coll_nid }}" @change="select_all">
+                        </th>
+                        <th>标题</th>
+                        <th>分类</th>
+                        <th>标签</th>
+                        <th>阅读量</th>
+                        <th>收藏量</th>
+                        <th>发布时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for collect in collect_query %}
+                        <tr>
+                            <td class="select"><input type="checkbox" v-model="select_list" name="nid"
+                                                      value="{{ collect.nid }}"></td>
+                            <td><a href="/article/{{ collect.nid }}">{{ collect.title }}</a></td>
+                            <td>{{ collect.get_category_display }}</td>
+                            {#这个是收藏文章的标签#}
+                            <td class="tags">
+                                {% for tag in collect.tag.all %}
+                                    <i>{{ tag }}</i>
+                                {% endfor %}
+                            </td>
+                            <td>{{ collect.look_count }}</td>
+                            <td>{{ collect.collects_count }}</td>
+                            <td>{{ collect.create_date|date_human }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    <input v-show="select_list.length" type="submit" value="取消收藏" class="collectSubmit">
+            </form>
+        {% else %}
+            <p class="no_article">还没有收藏文章，快去收藏文章吧！</p>
+        {% endif %}
+        {% endblock %}
+    {% endblock %}
+
+
+</main>
+
+</div>
+
+<script src="/static/axios/axios.min.js"></script>
+<script src="/static/vue/vue.js"></script>
+<script src="/static/jquery/jquery.min.js"></script>
+<script src="/static/elementui/index.js"></script>
+{% block js %}
+
+{% endblock %}
+<script>
+    // 请求中间件
+    axios.interceptors.request.use(request => {
+        if (request.method !== 'get') {
+            console.log('axios请求')
+            let csrftoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            request.headers['X-CSRFToken'] = csrftoken
+        }
+        return request
+    })
+    // 响应中间件
+    axios.interceptors.response.use(response => {
+        return response.data
+    })
+
+    new Vue({
+        el : '#app',
+        delimiters: ["[[","]]"],
+        data:{
+            // 是否默认展开文章的侧边栏
+            add_drawer:false,
+            // 默认选择的
+            add_article_activeNames: ['1'],
+            // 文章分类的id
+            category_id: '',
+            // 文章分类
+            category_options: [],
+            // 文章选中的标签列表
+            tags: [],
+            // 是否上推荐
+            recommend: true,
+            // 是否需要密码
+            pwd_active: false,
+            // 文章密码
+            pwd: [],
+            // 文章封面id
+            cover_id: '1',
+            // 文章标题
+            title: '',
+            // 文章简介
+            abstract: '',
+            // 修改密码的弹窗
+            edit_password_dialogVisible: false,
+            // 修改密码
+            edit_password: {
+                oldpwd: '',
+                newpwd: '',
+                repwd: '',
+            },
+            changeAvatarId: '',
+            avatar_list_headers: {},
+            perfect_information_dialogVisible: false,
+            perfect_information: {
+                email: '',
+                pwd: '',
+                code: '',
+            },
+            perfect_information_email_disabled: false,
+            perfect_information_method_disabled: true,
+            select_list: [],
+        },
+
+        created() {
+            let img = document.getElementById('cover_img')
+            let path_dict = {
+                "add_article": this.init_add_article,
+                "edit_article": this.init_edit_article,
+                "change_avatar": this.init_edit_avatar,
+                {#"cover_list": this.init_cover_list,#}
+                {#"avatar_list": this.init_avatar_list,#}
+            }
+
+            let path = location.pathname
+            for (const key in path_dict){
+                let index = path.indexOf(key)
+                if (index!==-1){
+                    path_dict[key](img)
+                    break
+                }
+            }
+
+
+        },
+
+        methods:{
+            add_handleClose(done){
+                done()
+            },
+
+            // 添加文章和编辑文章
+            add_edit_article() {
+                let data = {
+                    title: this.title,
+                    cover_id: this.cover_id,
+                    pwd: this.pwd,
+                    recommend: this.recommend,
+                    category: this.category_id,
+                    tags: this.tags,
+                    abstract: this.abstract,
+                    content: editor.querySelector('.editormd-markdown-textarea').value
+                }
+                return data
+            },
+
+            // 添加文章和编辑文章的回调
+            add_edit_callback(res) {
+                if (res.code) {
+                    this.$message.error(res.msg)
+                } else {
+                    this.$message.success(res.msg)
+                    setTimeout(() => {
+                        location.href = `/article/${res.data}`
+                    })
+                }
+            },
+
+            //添加文章函数
+            add_article(){
+                //添加文章的函数
+                let data = this.add_edit_article()
+                axios.post('/api/article/',data).then(res=>{
+                    this.add_edit_callback(res)
+                })
+            },
+
+            //选择图片
+            edit_select_cover(value) {
+                setTimeout(() => {
+                    let v = document.querySelector('.article_cover input').value
+                    let cover = document.querySelector("#cover_img")
+                    cover.src = v
+                }, 1)
+            },
+
+            //编辑文章
+            edit_article(nid){
+                let data = this.add_edit_article()
+                axios.put(`/api/article/${nid}/`,data).then(res=>{
+                   this.add_edit_callback(res)
+                })
+            },
+
+
+            //添加文章初始化
+            init_add_article(img){
+                let cover_list=eval(img.getAttribute('data'))
+                let item =cover_list[Math.floor(Math.random()*cover_list.length)]
+                img.setAttribute('src',item.url)
+                this.cover_id = item.nid.toString()
+            },
+
+            //编辑文章的初始化
+            init_edit_article(img){
+                let box = document.getElementById('edit_info')
+                this.title = box.getAttribute('data_title')
+                this.abstract = box.getAttribute('data_abstract')
+                this.cover_id = box.getAttribute('data_cover_id')
+                this.tags = eval(box.getAttribute('data_tags'))
+
+                let pwd = box.getAttribute('data_pwd')
+                    if (pwd !== 'None') {
+                        this.pwd = pwd
+                        this.pwd_active = true
+                    }
+
+                let recommend = box.getAttribute('data_recommend')
+                    if (recommend !== 'True') {
+                        this.recommend = true
+                    } else {
+                        this.recommend = false
+                    }
+
+                let cover_url = box.getAttribute('data_cover_url')
+                img.setAttribute('src', cover_url)
+
+                let category_id = box.getAttribute('data_category')
+                    if (category_id !== 'None') {
+                        this.category_id = category_id
+                }
+            },
+
+            // 修改密码
+            edit_password_method() {
+                axios.post("/api/change_password/", this.edit_password).then(res => {
+                    if (res.code) {
+                        this.$message.error(res.msg)
+                        $(`#edit_password_${res.self}`)[0].focus()
+                    } else {
+                        this.$message.success(res.msg)
+                        location.reload()
+                    }
+                })
+            },
+
+            // 修改头像
+            changeAvatarMethod() {
+                axios.put('/api/change_avatar/', {
+                    avatar_id: this.changeAvatarId,
+                }).then(res => {
+                    if (res.code) {
+                        this.$messge.error(res.msg)
+                    } else {
+                        this.$message.success(res.msg)
+                        $('.user_info img').attr('src', res.data)
+                    }
+                })
+            },
+
+             // 初始化修改头像
+            init_edit_avatar(img) {
+                let nid = eval($('.avatar_list').attr('avatar_nid'))
+                this.changeAvatarId = nid
+            },
+
+            avatar_list_upload() {
+                let csrftoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                this.avatar_list_headers['X-CSRFToken'] = csrftoken
+        },
+
+            avatar_list_success(res) {
+                // 这个回调可以用于文章封面的删除 所以复用
+                if (res.code) {
+                    this.$message.error(res.msg)
+                }
+            },
+
+            avatar_cover_delete(nid, url, e) {
+                this.$confirm('此操作将永久删除该图片, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.delete(`/api/upload/${url}/${nid}/`).then(res => {
+                        if (res.code) {
+                            this.$message.error(res.msg)
+                        } else {
+                            this.$message.success(res.msg)
+                            $(e.target).parent().parent().remove()
+                        }
+
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+
+            send_email() {
+                axios.post('/api/sendEmail/', this.perfect_information).then(res => {
+                    if (res.code) {
+                        this.$message.error(res.msg)
+                    } else {
+                        this.$message.success(res.msg)
+                        let num = 60
+                        let span = document.querySelector('.send_email .el-button span')
+                        this.perfect_information_email_disabled = true
+                        this.perfect_information_method_disabled = false
+                        let timer = null
+                        timer = setInterval(() => {
+                            span.innerHTML = num
+                            if (num === 1) {
+                                this.perfect_information_email_disabled = false
+                                span.innerHTML = '发送邮箱验证码'
+                                clearInterval(timer)
+                            }
+                            num--
+                        }, 1000)
+                    }
+                })
+            },
+
+            // 完善信息
+            perfect_information_method() {
+                    axios.put('/api/perfectInformation/', this.perfect_information).then(res => {
+                    if (res.code) {
+                        this.$message.error(res.msg)
+                    } else {
+                        this.$message.success(res.msg)
+                        this.perfect_information_dialogVisible = false
+                    }
+                })
+            },
+            // 全选
+            select_all(e) {
+                if (this.select_all.flag) {
+                    // 取消
+                    this.select_all.flag = false
+                    this.select_list = []
+                } else {
+                    this.select_all.flag = true
+                    let div = e.target.getAttribute('date')
+                    this.select_list = eval(div)
+                }
+            },
+
+        },
+
+        mounted() {
+            // 初始化主题
+	        {#this.init_theme()#}
+            // 动态导航， 给要实现动态导航的a标签，父级原价一个ref="dynamic_menu"
+            let dynamic_menu = document.querySelector("#dynamic_menu")
+            let a_list = dynamic_menu.querySelectorAll('a')
+            let path = location.pathname
+            console.log(path)
+            console.log(a_list)
+            for (const a of a_list) {
+                let a_href = a.getAttribute('href')
+                if (a_href === path || a_href + '/' === path) {
+                    a.classList.add('active')
+                }
+            }
+        },
+    })
+</script>
+
+</body>
+</html>

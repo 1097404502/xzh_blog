@@ -1,0 +1,147 @@
+body{
+    width: 100%;
+    /*
+    vh: 相对于视窗的高度, 视窗被均分为100单位的vh;
+    vw: 相对于视窗的宽度, 视窗被均分为100单位的vw;
+    */
+    height: 100vh ;
+    #app{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+main{
+    //width: 600px;
+    width: 30%;
+    min-height: 700px;
+    //height: 600px;
+    background-color: white;
+    // 盒子阴影
+    /*
+    第一个参数表示阴影水平偏移值
+    第二个参数表示阴影垂直偏移值
+    第三个参数表示阴影模糊值
+    rgba()就是颜色
+    */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .top{
+        padding: 20px;
+        .title{
+            text-align: center;
+            a{
+                color:#555555;
+            }
+            a.active{
+                color: skyblue;
+            }
+        }
+        .login_form{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+
+            input{
+                margin-bottom: 12px;
+                border: 1px solid #f0eeee;
+                outline: none;
+                height: 40px;
+                border-radius: 5px;
+                padding-left: 20px;
+                transition: all 0.3s;
+                &:focus{
+                    border: 1px solid skyblue;
+                }
+            }
+            >button{
+                cursor: pointer;
+                height: 40px;
+                border-radius: 5px;
+                background-color: skyblue;
+                color: white;
+            }
+            .code{
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                input{
+                    width: 60%;
+                }
+                img{
+                    width: 40%;
+                    height: 40px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    border: 1px solid #f0eeee;
+                }
+            }
+        }
+
+        .other_login{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+
+            >p{
+                font-size: 14px;
+                color:gray;
+            }
+
+            &::before{
+                    position: absolute;
+                    content: '';
+                    display: block;
+                    width: 40%;
+                    height: 1px;
+                    background-color: gray;
+                    left: 0;
+                    top: 10px;
+            }
+
+            &::after{
+                    position: absolute;
+                    content: '';
+                    display: block;
+                    width: 40%;
+                    height: 1px;
+                    background-color: gray;
+                    right: 0;
+                    top: 10px;
+            }
+
+            >div{
+                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+                img{
+                    width: 40px;
+                    margin: 10px;
+                }
+            }
+        }
+    }
+
+    .bottom{
+        img{
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            /*
+            translatex在x轴方向上进行移动，反之translatey实在y轴方向，而translate括号里的两个参数是先x后y的。
+            移动的单位都是自身的长度
+            */
+            transform: translateX(-50%);
+
+            height: 270px;
+        }
+    }
+}

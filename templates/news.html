@@ -1,0 +1,39 @@
+{% extends 'index.html' %}
+{% load my_tag %}
+
+{% block banner %}
+	{% banner 'news' %}
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="/static/my/css/news.css">
+{% endblock %}
+
+{% block main %}
+    <div class="main">
+        <div class="news_content">
+            {% csrf_token %}
+            <div class="left">
+                <ul>
+                    <li active="true" @click="get_new_data('KqndgxeLl9','微博')">
+                        <img src="https://file.ipadown.com/tophub/assets/images/media/s.weibo.com.png_50x50.png" alt="">微博
+                    </li>
+                </ul>
+            </div>
+            <div class="right">
+                <div class="title">
+                    <img src="https://file.ipadown.com/tophub/assets/images/media/s.weibo.com.png_50x50.png" alt="">
+                    <h2>微博 。热搜榜</h2>
+                </div>
+                <div class="body">
+                    <ul>
+                        <li v-for="item in news_list" :key="item.index">
+                            <span class="index">[[item.index]]</span>
+                            <a :href="item.link" target="_blank">[[item.title]]</a>
+                            <span class="num">[[item.hotValue]]</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

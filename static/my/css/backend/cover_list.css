@@ -1,0 +1,43 @@
+.cover_list {
+  flex-wrap: wrap;
+}
+.cover_list > li {
+  list-style: none;
+  margin-right: 20px;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.cover_list > li img {
+  width: 150px;
+  display: block;
+}
+.cover_list > li .delete_icon {
+  display: none;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+.cover_list > li .delete_icon i {
+  color: white;
+  cursor: pointer;
+}
+.cover_list > li.no_cover {
+  opacity: 0.6;
+}
+.cover_list > li.no_cover .delete_icon {
+  opacity: 0;
+  display: flex;
+  transition: all 0.3s;
+}
+.cover_list > li.no_cover:hover .delete_icon {
+  opacity: 1;
+}
+
+.el-scrollbar__wrap {
+  overflow-x: hidden;
+}
+
+/*# sourceMappingURL=cover_list.css.map */

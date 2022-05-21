@@ -1,0 +1,72 @@
+.editormd-html-preview pre{
+    background-color: #101111;
+}
+
+pre{
+    position: relative;
+}
+
+.editormd-html-preview pre.prettyprint{
+    border: 1px solid #474545;
+    padding: 30px 10px 10px 10px;
+}
+
+li.L1, li.L3, li.L5, li.L7, li.L9{
+    background-color: #171818;
+}
+
+.editormd-html-preview p{
+    line-height: 1.8rem;
+}
+pre::after{
+    position: absolute;
+    left: 20px;
+    top: 10px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-color: #ff5f56;
+    border-radius: 50%;
+    content: '';
+    box-shadow: 25px 0 0 #ffbd2e;
+}
+pre::before{
+    position: absolute;
+    left: 70px;
+    top: 10px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-color: #27c93f;
+    border-radius: 50%;
+    content: '';
+}
+
+.pln{
+    color: #909090;
+}
+.pun, .opn, .clo{
+    color: #9e9e21;
+}
+
+.kwd{
+    color: #d98611;
+}
+.str{
+    color: #31b031;
+}
+.com{
+    color: #4f4f4f;
+}
+.typ{
+    color: #00a3d4;
+}
+.lit{
+    color: #1aa2a2;
+}
+.tag{
+    color: #868800;
+}
+.atn{
+    color: #76c256;
+}
